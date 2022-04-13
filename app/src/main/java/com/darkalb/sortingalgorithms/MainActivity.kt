@@ -20,6 +20,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.darkalb.sortingalgorithms.databinding.ActivityMainBinding
+import com.darkalb.sortingalgorithms.enteties.AnimatedData
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
@@ -27,8 +28,6 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 typealias Indexes = Pair<Int, Int>
-
-private const val STEP_DURATION = 1000L
 
 enum class MainUiEvent {
     START_ACTION,
@@ -42,7 +41,8 @@ sealed class MainUiState {
     data class NextStep(
         val numbers: List<Float>,
         val newNumbers: List<Float>,
-        val datas: List<Indexes>
+        val datas: List<Indexes>,
+        val stepDuration: Long
     ) : MainUiState()
 
     data class Error(val message: String) : MainUiState()
@@ -115,6 +115,7 @@ class MainActivity : AppCompatActivity() {
         numbers: List<Float>,
         newNumbers: List<Float>,
         animatedDatas: Array<AnimatedData>,
+        stepDuration: Long,
         container: ViewGroup
     ) {
         animatedDatas.onEach { animatedData ->
@@ -161,7 +162,7 @@ class MainActivity : AppCompatActivity() {
                 container.removeAllViews()
                 viewModel.onEvent(MainUiEvent.NEXT_STEP)
             }
-            duration = STEP_DURATION
+            duration = stepDuration
         }
 
         animator.start()
@@ -240,7 +241,8 @@ class MainActivity : AppCompatActivity() {
             is MainUiState.NextStep -> onReceiveNextStep(
                 state.numbers,
                 state.newNumbers,
-                state.datas
+                state.datas,
+                state.stepDuration
             )
             is MainUiState.Error -> onReceiveError(state.message)
         }
@@ -257,7 +259,8 @@ class MainActivity : AppCompatActivity() {
     private fun onReceiveNextStep(
         numbers: List<Float>,
         newNumbers: List<Float>,
-        elements: List<Indexes>
+        elements: List<Indexes>,
+        stepDuration: Long
     ) {
         animateStep(
             freeLeftXSpace,
@@ -271,6 +274,7 @@ class MainActivity : AppCompatActivity() {
                 freeLeftXSpace,
                 binding.root.height
             ),
+            stepDuration,
             binding.root
         )
     }
@@ -279,9 +283,3 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, errorMessage, Toast.LENGTH_SHORT).show()
     }
 }
-
-data class AnimatedData(
-    val brick: View,
-    val animator: ObjectAnimator,
-    val animatedPositions: Indexes
-)
