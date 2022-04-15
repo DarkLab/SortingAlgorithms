@@ -4,7 +4,6 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
@@ -21,39 +20,48 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.darkalb.sortingalgorithms.databinding.ActivityMainBinding
 import com.darkalb.sortingalgorithms.enteties.AnimatedData
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 typealias Indexes = Pair<Int, Int>
 
 enum class MainUiEvent {
-    START_ACTION,
+    CHANGE_UI_SETTINGS,
+    NEW_LIST,
     START_SORT,
-    NEXT_STEP
+    ANIMATED_STEP_END
 }
 
 sealed class MainUiState {
-    data class StartAction(val numbers: List<Float>) : MainUiState()
-    data class StartSort(val name: String) : MainUiState()
-    data class NextStep(
+    data class UpdateUiState(
+        val backgroundColor: Int,
+        val staticColor: Int,
+        val dynamicColor: Int
+    ) : MainUiState()
+
+    data class RenderList(val numbers: List<Float>) : MainUiState()
+    data class AnimateStep(
         val numbers: List<Float>,
         val newNumbers: List<Float>,
         val datas: List<Indexes>,
         val stepDuration: Long
     ) : MainUiState()
 
+    data class Congratulation(val message: String) : MainUiState()
     data class Error(val message: String) : MainUiState()
 }
 
 class MainActivity : AppCompatActivity() {
 
-    private val staticColor = Color.argb(255, 40, 225, 40)
-    private val dynamicColor = Color.argb(255, 80, 40, 220)
+    private var _backgroundColor = 0
+    private var _staticColor = 0
+        set(value) {
+            field = value
+            paint.color = value
+        }
+    private var _dynamicColor = 0
     private val paint = Paint().apply {
-        color = staticColor
+        color = _staticColor
     }
     private val emptySpace = 5
 
@@ -80,20 +88,21 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.root.apply {
-            setOnClickListener {
-                viewModel.onEvent(MainUiEvent.START_SORT)
-            }
-            post {
-                viewModel.onEvent(MainUiEvent.START_ACTION)
-            }
+        binding.mainContainer.post {
+            viewModel.onEvent(MainUiEvent.NEW_LIST)
+        }
+        binding.start.setOnClickListener {
+            viewModel.onEvent(MainUiEvent.START_SORT)
+        }
+        binding.refresh.setOnClickListener {
+            viewModel.onEvent(MainUiEvent.NEW_LIST)
         }
     }
 
     private fun renderView(numbers: List<Float>) {
         if (numbers.isEmpty()) return
 
-        binding.root.apply {
+        binding.mainContainer.apply {
             val (w, h) = width to height
             val quantity = numbers.size
 
@@ -160,7 +169,7 @@ class MainActivity : AppCompatActivity() {
                     )
                 )
                 container.removeAllViews()
-                viewModel.onEvent(MainUiEvent.NEXT_STEP)
+                viewModel.onEvent(MainUiEvent.ANIMATED_STEP_END)
             }
             duration = stepDuration
         }
@@ -193,6 +202,7 @@ class MainActivity : AppCompatActivity() {
         numbers: List<Float>,
         excludeIndex: Array<Int>
     ) = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565).applyCanvas {
+        drawColor(_backgroundColor)
         repeat(numbers.size) {
             if (it in excludeIndex) return@repeat
             drawRect(
@@ -220,7 +230,7 @@ class MainActivity : AppCompatActivity() {
                         itemWidth,
                         freeLeftXSpace,
                         h,
-                        dynamicColor
+                        _dynamicColor
                     )
                 val animator = ObjectAnimator.ofFloat(brick, View.TRANSLATION_X, brick.translationX)
                 add(
@@ -236,24 +246,27 @@ class MainActivity : AppCompatActivity() {
 
     private fun applyCurrentState(state: MainUiState) {
         when (state) {
-            is MainUiState.StartAction -> onReceiveStartAction(state.numbers)
-            is MainUiState.StartSort -> onReceiveStartSort(state.name)
-            is MainUiState.NextStep -> onReceiveNextStep(
+            is MainUiState.UpdateUiState -> onUpdateUiState(state)
+            is MainUiState.RenderList -> onReceiveNewList(state.numbers)
+            is MainUiState.AnimateStep -> onReceiveNextStep(
                 state.numbers,
                 state.newNumbers,
                 state.datas,
                 state.stepDuration
             )
+            is MainUiState.Congratulation -> onReceiveCongratulation(state.message)
             is MainUiState.Error -> onReceiveError(state.message)
         }
     }
 
-    private fun onReceiveStartAction(numbers: List<Float>) {
-        renderView(numbers)
+    private fun onUpdateUiState(state: MainUiState.UpdateUiState) {
+        _backgroundColor = state.backgroundColor
+        _staticColor = state.staticColor
+        _dynamicColor = state.dynamicColor
     }
 
-    private fun onReceiveStartSort(name: String) {
-        Toast.makeText(this, name, Toast.LENGTH_SHORT).show()
+    private fun onReceiveNewList(numbers: List<Float>) {
+        renderView(numbers)
     }
 
     private fun onReceiveNextStep(
@@ -269,14 +282,18 @@ class MainActivity : AppCompatActivity() {
             newNumbers,
             generateDataForAnimate(
                 elements.toTypedArray(),
-                binding.root,
+                binding.mainContainer,
                 itemWidth,
                 freeLeftXSpace,
-                binding.root.height
+                binding.mainContainer.height
             ),
             stepDuration,
-            binding.root
+            binding.mainContainer
         )
+    }
+
+    private fun onReceiveCongratulation(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private fun onReceiveError(errorMessage: String) {

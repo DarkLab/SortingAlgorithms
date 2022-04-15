@@ -13,7 +13,7 @@ class BubbleSorting(originalList: List<Float>) : SortingAlgorithm(originalList) 
                 for (j in (i + 1) until count) {
                     val oldList = workList.toList()
                     val temp = workList[i]
-                    val indexes = if (temp > workList[j]) {
+                    val renderData = if (temp > workList[j]) {
                         workList[i] = workList[j]
                         workList[j] = temp
                         RenderData(
@@ -34,7 +34,7 @@ class BubbleSorting(originalList: List<Float>) : SortingAlgorithm(originalList) 
                             )
                         )
                     }
-                    emit(indexes)
+                    emit(renderData)
                 }
             }
         }
