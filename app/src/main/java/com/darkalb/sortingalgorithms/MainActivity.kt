@@ -4,6 +4,7 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
@@ -20,31 +21,57 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.darkalb.sortingalgorithms.databinding.ActivityMainBinding
 import com.darkalb.sortingalgorithms.enteties.AnimatedData
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 typealias Indexes = Pair<Int, Int>
 
 enum class MainUiEvent {
+    READY,
     CHANGE_UI_SETTINGS,
     NEW_LIST,
     START_SORT,
+    CHANGE_ALGORITHM,
+    CHANGE_SIZE,
+    CHANGE_PALETTE,
+    CHANGE_DURATION,
     ANIMATED_STEP_END
 }
 
 sealed class MainUiState {
     data class UpdateUiState(
-        val backgroundColor: Int,
-        val staticColor: Int,
-        val dynamicColor: Int
-    ) : MainUiState()
+        val algorithm: Algorithm,
+        val palette: Array<String>,
+        val duration: DURATION
+    ) : MainUiState() {
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as UpdateUiState
+
+            if (algorithm != other.algorithm) return false
+            if (!palette.contentEquals(other.palette)) return false
+            if (duration != other.duration) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = algorithm.hashCode()
+            result = 31 * result + palette.contentHashCode()
+            result = 31 * result + duration.hashCode()
+            return result
+        }
+    }
 
     data class RenderList(val numbers: List<Float>) : MainUiState()
     data class AnimateStep(
         val numbers: List<Float>,
         val newNumbers: List<Float>,
         val datas: List<Indexes>,
-        val stepDuration: Long
+        val duration: DURATION
     ) : MainUiState()
 
     data class Congratulation(val message: String) : MainUiState()
@@ -89,13 +116,25 @@ class MainActivity : AppCompatActivity() {
             }
         }
         binding.mainContainer.post {
-            viewModel.onEvent(MainUiEvent.NEW_LIST)
+            viewModel.onEvent(MainUiEvent.READY)
         }
         binding.start.setOnClickListener {
             viewModel.onEvent(MainUiEvent.START_SORT)
         }
         binding.refresh.setOnClickListener {
             viewModel.onEvent(MainUiEvent.NEW_LIST)
+        }
+        binding.typeTV.setOnClickListener {
+            viewModel.onEvent(MainUiEvent.CHANGE_ALGORITHM)
+        }
+        binding.sizeTV.setOnClickListener {
+            viewModel.onEvent(MainUiEvent.CHANGE_SIZE)
+        }
+        binding.paletteTV.setOnClickListener {
+            viewModel.onEvent(MainUiEvent.CHANGE_PALETTE)
+        }
+        binding.durationTv.setOnClickListener {
+            viewModel.onEvent(MainUiEvent.CHANGE_DURATION)
         }
     }
 
@@ -252,7 +291,7 @@ class MainActivity : AppCompatActivity() {
                 state.numbers,
                 state.newNumbers,
                 state.datas,
-                state.stepDuration
+                state.duration.value
             )
             is MainUiState.Congratulation -> onReceiveCongratulation(state.message)
             is MainUiState.Error -> onReceiveError(state.message)
@@ -260,9 +299,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onUpdateUiState(state: MainUiState.UpdateUiState) {
-        _backgroundColor = state.backgroundColor
-        _staticColor = state.staticColor
-        _dynamicColor = state.dynamicColor
+        _backgroundColor = Color.parseColor(state.palette[0])
+        _staticColor = Color.parseColor(state.palette[1])
+        _dynamicColor = Color.parseColor(state.palette[2])
+        binding.typeTV.text = state.algorithm.mnemonic
+        binding.durationTv.text = state.duration.mnemonic
     }
 
     private fun onReceiveNewList(numbers: List<Float>) {
@@ -293,7 +334,25 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun onReceiveCongratulation(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        lifecycleScope.launch {
+            with(binding.congratulationIV) {
+                val appearing = ObjectAnimator.ofFloat(this, View.ALPHA, 0f, 1f).apply {
+                    doOnStart {
+                        visibility = View.VISIBLE
+                    }
+                    duration = 600L
+                }
+                val disappearing = ObjectAnimator.ofFloat(this, View.ALPHA, 0f).apply {
+                    doOnEnd {
+                        visibility = View.GONE
+                    }
+                    duration = 600L
+                }
+                appearing.start()
+                delay(1500L)
+                disappearing.start()
+            }
+        }
     }
 
     private fun onReceiveError(errorMessage: String) {

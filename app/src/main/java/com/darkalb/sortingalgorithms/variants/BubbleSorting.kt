@@ -1,6 +1,8 @@
 package com.darkalb.sortingalgorithms.variants
 
 import com.darkalb.sortingalgorithms.enteties.RenderData
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -37,6 +39,7 @@ class BubbleSorting(originalList: List<Float>) : SortingAlgorithm(originalList) 
                     emit(renderData)
                 }
             }
+            currentCoroutineContext().cancel()
         }
     }
 }

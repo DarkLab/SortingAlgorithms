@@ -1,6 +1,5 @@
 package com.darkalb.sortingalgorithms
 
-import android.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.darkalb.sortingalgorithms.variants.BubbleSorting
@@ -14,33 +13,75 @@ import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
-private const val QUANTITY = 20
-private const val STEP_DURATION = 600L
-private const val INTER_STEP_DURATION = 160L
+enum class Algorithm(val mnemonic: String) {
+    BUBBLE_SORT("BUB"),
+    INSERTION_SORT("INS");
 
-enum class Algorithm {
-    BUBBLE_SORT,
-    INSERTION_SORT
+    fun next(): Algorithm {
+        return when (this) {
+            BUBBLE_SORT -> INSERTION_SORT
+            INSERTION_SORT -> BUBBLE_SORT
+        }
+    }
 }
 
-private val defaultPalette = arrayOf("#D06224", "#8A8635", "#E9C891")
-private val palettes = mapOf(
-    "1" to arrayOf("#001E6C", "#E8630A", "#FCD900"),
-    "2" to arrayOf("#8E3200", "#D7A86E", "#FFEBC1"),
-    "3" to arrayOf("#40DFEF", "#FFFBE7", "#E78EA9"),
-    "4" to arrayOf("#006778", "#00AFC1", "#FFD124"),
-    "5" to arrayOf("#139487", "#FFF1CE", "#D29D2B")
+enum class QUANTITY(val size: Int) {
+    SMALL(20),
+    MEDIUM(30),
+    BIG(40);
+
+    fun next(): QUANTITY {
+        return when (this) {
+            SMALL -> MEDIUM
+            MEDIUM -> BIG
+            BIG -> SMALL
+        }
+    }
+}
+
+enum class DURATION(val mnemonic: String, val value: Long) {
+    SLOW("1x", 960L),
+    MEDIUM("2x", 640L),
+    FAST("3x", 320L),
+    VERY_FAST("4x", 160L);
+
+    fun next(): DURATION {
+        return when (this) {
+            SLOW -> MEDIUM
+            MEDIUM -> FAST
+            FAST -> VERY_FAST
+            VERY_FAST -> SLOW
+        }
+    }
+}
+
+private val palettes = arrayOf(
+    arrayOf("#001E6C", "#E8630A", "#FCD900"),
+    arrayOf("#8E3200", "#D7A86E", "#FFEBC1"),
+    arrayOf("#40DFEF", "#FFFBE7", "#E78EA9"),
+    arrayOf("#006778", "#00AFC1", "#FFD124"),
+    arrayOf("#139487", "#FFF1CE", "#D29D2B")
 )
 
 class MainViewModel : ViewModel() {
+    private var currentAlgorithmType: Algorithm = Algorithm.BUBBLE_SORT
+    private var currentPaletteIndex = 0
+    private val currentPalette: Array<String>
+        get() = palettes[currentPaletteIndex]
+    private var currentQuantity: QUANTITY = QUANTITY.SMALL
     private var basedArray = emptyList<Float>()
-    private val palette: Array<String> = palettes["1"] ?: defaultPalette
+    private var currentDuration: DURATION = DURATION.MEDIUM
+        set(value) {
+            field = value
+            interStepDuration = value.value / 3
+        }
+    private var interStepDuration = currentDuration.value / 3
 
     private val _uiState: MutableStateFlow<MainUiState> = MutableStateFlow(
         MainUiState.UpdateUiState(
-            Color.parseColor(palette[0]),
-            Color.parseColor(palette[1]),
-            Color.parseColor(palette[2])
+            currentAlgorithmType,
+            currentPalette,
+            currentDuration
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -58,16 +99,39 @@ class MainViewModel : ViewModel() {
     fun onEvent(event: MainUiEvent) {
         viewModelScope.launch(exceptionHandler) {
             when (event) {
+                MainUiEvent.READY -> onReady()
                 MainUiEvent.CHANGE_UI_SETTINGS -> onChangeUiSettings()
                 MainUiEvent.NEW_LIST -> onNewList()
                 MainUiEvent.START_SORT -> onStartSort()
+                MainUiEvent.CHANGE_ALGORITHM -> onChangeAlgorithm()
+                MainUiEvent.CHANGE_SIZE -> onChangeSize()
+                MainUiEvent.CHANGE_PALETTE -> onChangePalette()
+                MainUiEvent.CHANGE_DURATION -> onChangeDuration()
                 MainUiEvent.ANIMATED_STEP_END -> makeNextStep()
             }
         }
     }
 
+    private fun onReady() {
+        onNewList()
+    }
+
     private fun onChangeUiSettings() {
         viewModelScope.launch {
+            _uiState.emit(
+                MainUiState.UpdateUiState(
+                    currentAlgorithmType,
+                    currentPalette,
+                    currentDuration
+                )
+            )
+            renderCurrentList()
+        }
+    }
+
+    private fun renderCurrentList() {
+        viewModelScope.launch {
+            _uiState.emit(MainUiState.RenderList(basedArray))
         }
     }
 
@@ -75,11 +139,10 @@ class MainViewModel : ViewModel() {
         if (currentJob?.isActive == true) return
 
         viewModelScope.launch {
-            _uiState.emit(MainUiState.RenderList(emptyList()))
             val newList = mutableListOf<Float>()
             with(newList) {
-                repeat(QUANTITY) {
-                    add((it + 1f) / QUANTITY)
+                repeat(currentQuantity.size) {
+                    add((it + 1f) / currentQuantity.size)
                 }
                 shuffle()
             }
@@ -88,27 +151,52 @@ class MainViewModel : ViewModel() {
         }
     }
 
-    private fun onStartSort(algorithm: Algorithm = Algorithm.INSERTION_SORT) {
+    private fun onStartSort() {
         if (currentJob?.isActive == true) return
 
-        currentAlgorithm = when (algorithm) {
+        currentAlgorithm = when (currentAlgorithmType) {
             Algorithm.BUBBLE_SORT -> BubbleSorting(basedArray)
             Algorithm.INSERTION_SORT -> InsertionSorting(basedArray)
         }
         currentJob = viewModelScope.launch {
             currentAlgorithm?.execute()?.collect {
-                delay(INTER_STEP_DURATION)
+                delay(interStepDuration)
                 _uiState.emit(
                     MainUiState.AnimateStep(
                         it.oldList,
                         it.newList,
                         it.indexes,
-                        STEP_DURATION
+                        currentDuration
                     )
                 )
                 waitForStepAnimationEnd()
             }
+            _uiState.emit(MainUiState.Congratulation("Поздравляю!!!"))
         }
+    }
+
+    private fun onChangeAlgorithm() {
+        if (currentJob?.isActive == true) return
+        currentAlgorithmType = currentAlgorithmType.next()
+        onChangeUiSettings()
+    }
+
+    private fun onChangeSize() {
+        if (currentJob?.isActive == true) return
+        currentQuantity = currentQuantity.next()
+        onNewList()
+    }
+
+    private fun onChangePalette() {
+        if (currentJob?.isActive == true) return
+        currentPaletteIndex = (currentPaletteIndex + 1) % palettes.size
+        onChangeUiSettings()
+    }
+
+    private fun onChangeDuration() {
+        if (currentJob?.isActive == true) return
+        currentDuration = currentDuration.next()
+        onChangeUiSettings()
     }
 
     private fun makeNextStep() {

@@ -1,6 +1,8 @@
 package com.darkalb.sortingalgorithms.variants
 
 import com.darkalb.sortingalgorithms.enteties.RenderData
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -41,6 +43,7 @@ class InsertionSorting(originalList: List<Float>) : SortingAlgorithm(originalLis
                     }
                 }
             }
+            currentCoroutineContext().cancel()
         }
     }
 }
