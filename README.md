@@ -7,6 +7,6 @@
 - вставкой
 - расческой
 
-<image src="https://github.com/DarkLab/SortingAlgorithms/AuxiliaryFiles/Screenshot_01.png/>
+<image src="https://github.com/DarkLab/SortingAlgorithms/AuxiliaryFiles/Screenshot_01.png"/>
             
-<image src="https://github.com/DarkLab/SortingAlgorithms/AuxiliaryFiles/Screenshot_02.png/>
+<image src="https://github.com/DarkLab/SortingAlgorithms/AuxiliaryFiles/Screenshot_02.png"/>
