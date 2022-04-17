@@ -9,4 +9,4 @@
 
 <image src="https://github.com/DarkLab/SortingAlgorithms/blob/master/AuxiliaryFiles/Screenshot_01.png"/>
             
-<image src="https://github.com/DarkLab/SortingAlgorithms/blob/master/AuxiliaryFiles/Screenshot_01.png"/>
+<image src="https://github.com/DarkLab/SortingAlgorithms/blob/master/AuxiliaryFiles/Screenshot_02.png"/>
