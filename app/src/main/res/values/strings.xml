@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">Визуализация Сортировки</string>
     <string name="shuffle">R</string>
+    <string name="list_size">{ }</string>
 </resources>

@@ -3,6 +3,7 @@ package com.darkalb.sortingalgorithms
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.darkalb.sortingalgorithms.variants.BubbleSorting
+import com.darkalb.sortingalgorithms.variants.CombSorting
 import com.darkalb.sortingalgorithms.variants.InsertionSorting
 import com.darkalb.sortingalgorithms.variants.SortingAlgorithm
 import kotlinx.coroutines.*
@@ -14,13 +15,15 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 enum class Algorithm(val mnemonic: String) {
-    BUBBLE_SORT("BUB"),
-    INSERTION_SORT("INS");
+    BUBBLE_SORT("bub"),
+    INSERTION_SORT("ins"),
+    COMB_SORTING("comb");
 
     fun next(): Algorithm {
         return when (this) {
             BUBBLE_SORT -> INSERTION_SORT
-            INSERTION_SORT -> BUBBLE_SORT
+            INSERTION_SORT -> COMB_SORTING
+            COMB_SORTING -> BUBBLE_SORT
         }
     }
 }
@@ -43,14 +46,16 @@ enum class DURATION(val mnemonic: String, val value: Long) {
     SLOW("1x", 960L),
     MEDIUM("2x", 640L),
     FAST("3x", 320L),
-    VERY_FAST("4x", 160L);
+    VERY_FAST("4x", 160L),
+    SUPER_FAST("5x", 80L);
 
     fun next(): DURATION {
         return when (this) {
             SLOW -> MEDIUM
             MEDIUM -> FAST
             FAST -> VERY_FAST
-            VERY_FAST -> SLOW
+            VERY_FAST -> SUPER_FAST
+            SUPER_FAST -> SLOW
         }
     }
 }
@@ -116,7 +121,7 @@ class MainViewModel : ViewModel() {
         onNewList()
     }
 
-    private fun onChangeUiSettings() {
+    private fun onChangeUiSettings(withoutRenderList: Boolean = false) {
         viewModelScope.launch {
             _uiState.emit(
                 MainUiState.UpdateUiState(
@@ -125,6 +130,7 @@ class MainViewModel : ViewModel() {
                     currentDuration
                 )
             )
+            if (withoutRenderList) return@launch
             renderCurrentList()
         }
     }
@@ -157,6 +163,7 @@ class MainViewModel : ViewModel() {
         currentAlgorithm = when (currentAlgorithmType) {
             Algorithm.BUBBLE_SORT -> BubbleSorting(basedArray)
             Algorithm.INSERTION_SORT -> InsertionSorting(basedArray)
+            Algorithm.COMB_SORTING -> CombSorting(basedArray)
         }
         currentJob = viewModelScope.launch {
             currentAlgorithm?.execute()?.collect {
@@ -194,9 +201,8 @@ class MainViewModel : ViewModel() {
     }
 
     private fun onChangeDuration() {
-        if (currentJob?.isActive == true) return
         currentDuration = currentDuration.next()
-        onChangeUiSettings()
+        onChangeUiSettings(true)
     }
 
     private fun makeNextStep() {

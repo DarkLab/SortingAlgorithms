@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable/cicle.xml" value="0.2035" />
+        <entry key="app/src/main/res/drawable/circle.xml" value="0.2305" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.38958333333333334" />
       </map>
     </option>

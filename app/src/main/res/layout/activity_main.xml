@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:keepScreenOn="true"
     tools:context=".MainActivity">
 
     <FrameLayout
@@ -15,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/start"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -23,10 +24,10 @@
         android:alpha="0.3"
         android:background="@drawable/circle"
         android:contentDescription="@null"
-        android:src="@android:drawable/ic_media_play"
         app:layout_constraintHorizontal_chainStyle="spread"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_media_play" />
 
     <TextView
         android:id="@+id/typeTV"
@@ -35,12 +36,13 @@
         android:alpha="0.3"
         android:background="@drawable/circle"
         android:gravity="center"
-        android:text="B"
+        android:includeFontPadding="false"
         android:textColor="@color/white"
-        android:textSize="24sp"
+        android:textSize="18sp"
         app:layout_constraintEnd_toStartOf="@id/sizeTV"
         app:layout_constraintStart_toEndOf="@id/start"
-        app:layout_constraintTop_toTopOf="@id/start" />
+        app:layout_constraintTop_toTopOf="@id/start"
+        tools:text="comb" />
 
     <TextView
         android:id="@+id/sizeTV"
@@ -49,26 +51,26 @@
         android:alpha="0.3"
         android:background="@drawable/circle"
         android:gravity="center"
-        android:text="S"
+        android:includeFontPadding="false"
+        android:text="@string/list_size"
         android:textColor="@color/white"
         android:textSize="24sp"
-        app:layout_constraintEnd_toStartOf="@id/paletteTV"
+        app:layout_constraintEnd_toStartOf="@id/paletteIV"
         app:layout_constraintStart_toEndOf="@id/typeTV"
         app:layout_constraintTop_toTopOf="@id/start" />
 
-    <TextView
-        android:id="@+id/paletteTV"
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/paletteIV"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:alpha="0.3"
         android:background="@drawable/circle"
-        android:gravity="center"
-        android:text="P"
-        android:textColor="@color/white"
-        android:textSize="24sp"
+        android:contentDescription="@null"
         app:layout_constraintEnd_toStartOf="@id/durationTv"
         app:layout_constraintStart_toEndOf="@id/sizeTV"
-        app:layout_constraintTop_toTopOf="@id/start" />
+        app:layout_constraintTop_toTopOf="@id/start"
+        app:srcCompat="@drawable/palette"
+        app:tint="@color/white" />
 
     <TextView
         android:id="@+id/durationTv"
@@ -77,14 +79,15 @@
         android:alpha="0.3"
         android:background="@drawable/circle"
         android:gravity="center"
-        android:text="1x"
+        android:includeFontPadding="false"
         android:textColor="@color/white"
         android:textSize="24sp"
         app:layout_constraintEnd_toStartOf="@id/refresh"
-        app:layout_constraintStart_toEndOf="@id/paletteTV"
-        app:layout_constraintTop_toTopOf="@id/start" />
+        app:layout_constraintStart_toEndOf="@id/paletteIV"
+        app:layout_constraintTop_toTopOf="@id/start"
+        tools:text="1x" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/refresh"
         android:layout_width="48dp"
         android:layout_height="48dp"
@@ -92,22 +95,22 @@
         android:alpha="0.3"
         android:background="@drawable/circle"
         android:contentDescription="@null"
-        android:src="@android:drawable/ic_menu_rotate"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@android:drawable/ic_menu_rotate" />
 
-    <ImageView
+    <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/congratulationIV"
         android:layout_width="180dp"
         android:layout_height="180dp"
         android:background="@drawable/circle"
         android:backgroundTint="@color/white"
         android:contentDescription="@null"
-        android:src="@drawable/salute"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/salute" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

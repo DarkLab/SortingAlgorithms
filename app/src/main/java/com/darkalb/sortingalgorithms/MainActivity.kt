@@ -130,7 +130,7 @@ class MainActivity : AppCompatActivity() {
         binding.sizeTV.setOnClickListener {
             viewModel.onEvent(MainUiEvent.CHANGE_SIZE)
         }
-        binding.paletteTV.setOnClickListener {
+        binding.paletteIV.setOnClickListener {
             viewModel.onEvent(MainUiEvent.CHANGE_PALETTE)
         }
         binding.durationTv.setOnClickListener {
