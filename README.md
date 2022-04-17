@@ -7,3 +7,6 @@
 - вставкой
 - расческой
 
+<image src="https://github.com/khasang/SmartForecast/blob/main-develop/AuxiliaryFiles/Screenshot_01.png/>
+            
+<image src="https://github.com/khasang/SmartForecast/blob/main-develop/AuxiliaryFiles/Screenshot_02.png/>
