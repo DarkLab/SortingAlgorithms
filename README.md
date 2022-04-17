@@ -7,6 +7,6 @@
 - вставкой
 - расческой
 
-<image src="https://github.com/khasang/SmartForecast/blob/main-develop/AuxiliaryFiles/Screenshot_01.png/>
+<image src="https://github.com/DarkLab/SortingAlgorithms/tree/master/AuxiliaryFiles/Screenshot_01.png/>
             
-<image src="https://github.com/khasang/SmartForecast/blob/main-develop/AuxiliaryFiles/Screenshot_02.png/>
+<image src="https://github.com/DarkLab/SortingAlgorithms/tree/master/AuxiliaryFiles/Screenshot_02.png/>
