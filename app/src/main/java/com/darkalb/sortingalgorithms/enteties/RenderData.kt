@@ -5,5 +5,6 @@ import com.darkalb.sortingalgorithms.Indexes
 class RenderData(
     val oldList: List<Float>,
     val newList: List<Float>,
-    val indexes: List<Indexes>
+    val indexes: List<Indexes>,
+    val level: Float? = null
 )

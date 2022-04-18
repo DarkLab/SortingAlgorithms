@@ -10,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
@@ -71,7 +72,8 @@ sealed class MainUiState {
         val numbers: List<Float>,
         val newNumbers: List<Float>,
         val datas: List<Indexes>,
-        val duration: DURATION
+        val duration: DURATION,
+        val level: Float? = null
     ) : MainUiState()
 
     data class Congratulation(val message: String) : MainUiState()
@@ -90,7 +92,10 @@ class MainActivity : AppCompatActivity() {
     private val paint = Paint().apply {
         color = _staticColor
     }
-    private val emptySpace = 5
+    private val linePaint = Paint().apply {
+        color = Color.WHITE
+    }
+    private var emptySpace: Int = 0
 
     private var itemXSpace = 0
     private var itemWidth = 0
@@ -103,6 +108,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+
+        linePaint.strokeWidth =
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2f, resources.displayMetrics)
+        emptySpace =
+            TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1.5f, resources.displayMetrics)
+                .toInt()
 
         initialize()
     }
@@ -152,7 +163,7 @@ class MainActivity : AppCompatActivity() {
 
             background = BitmapDrawable(
                 resources,
-                generateDrawable(w, h, freeLeftXSpace, itemXSpace, numbers, emptyArray())
+                generateDrawable(w, h, freeLeftXSpace, itemXSpace, numbers, emptyArray(), null)
             )
         }
     }
@@ -164,6 +175,7 @@ class MainActivity : AppCompatActivity() {
         newNumbers: List<Float>,
         animatedDatas: Array<AnimatedData>,
         stepDuration: Long,
+        level: Float?,
         container: ViewGroup
     ) {
         animatedDatas.onEach { animatedData ->
@@ -191,7 +203,8 @@ class MainActivity : AppCompatActivity() {
                         freeLeftXSpace,
                         itemXSpace,
                         numbers,
-                        excludeIndex
+                        excludeIndex,
+                        level
                     )
                 )
             }
@@ -204,7 +217,8 @@ class MainActivity : AppCompatActivity() {
                         freeLeftXSpace,
                         itemXSpace,
                         newNumbers,
-                        emptyArray()
+                        emptyArray(),
+                        level
                     )
                 )
                 container.removeAllViews()
@@ -239,7 +253,8 @@ class MainActivity : AppCompatActivity() {
         freeLeftXSpace: Float,
         itemXSpace: Int,
         numbers: List<Float>,
-        excludeIndex: Array<Int>
+        excludeIndex: Array<Int>,
+        level: Float?
     ) = Bitmap.createBitmap(w, h, Bitmap.Config.RGB_565).applyCanvas {
         drawColor(_backgroundColor)
         repeat(numbers.size) {
@@ -251,6 +266,10 @@ class MainActivity : AppCompatActivity() {
                 h.toFloat(),
                 paint
             )
+        }
+        level?.also { l ->
+            val lh = (1 - l) * h
+            drawLine(0f, lh, w.toFloat(), lh, linePaint)
         }
     }
 
@@ -291,7 +310,8 @@ class MainActivity : AppCompatActivity() {
                 state.numbers,
                 state.newNumbers,
                 state.datas,
-                state.duration.value
+                state.duration.value,
+                state.level
             )
             is MainUiState.Congratulation -> onReceiveCongratulation(state.message)
             is MainUiState.Error -> onReceiveError(state.message)
@@ -314,7 +334,8 @@ class MainActivity : AppCompatActivity() {
         numbers: List<Float>,
         newNumbers: List<Float>,
         elements: List<Indexes>,
-        stepDuration: Long
+        stepDuration: Long,
+        level: Float?
     ) {
         animateStep(
             freeLeftXSpace,
@@ -329,6 +350,7 @@ class MainActivity : AppCompatActivity() {
                 binding.mainContainer.height
             ),
             stepDuration,
+            level,
             binding.mainContainer
         )
     }

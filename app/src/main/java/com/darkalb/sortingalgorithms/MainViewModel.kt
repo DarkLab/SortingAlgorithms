@@ -2,10 +2,7 @@ package com.darkalb.sortingalgorithms
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.darkalb.sortingalgorithms.variants.BubbleSorting
-import com.darkalb.sortingalgorithms.variants.CombSorting
-import com.darkalb.sortingalgorithms.variants.InsertionSorting
-import com.darkalb.sortingalgorithms.variants.SortingAlgorithm
+import com.darkalb.sortingalgorithms.variants.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,13 +14,15 @@ import kotlin.coroutines.suspendCoroutine
 enum class Algorithm(val mnemonic: String) {
     BUBBLE_SORT("bub"),
     INSERTION_SORT("ins"),
-    COMB_SORTING("comb");
+    COMB_SORTING("comb"),
+    QUICK_SORT("qk");
 
     fun next(): Algorithm {
         return when (this) {
             BUBBLE_SORT -> INSERTION_SORT
             INSERTION_SORT -> COMB_SORTING
-            COMB_SORTING -> BUBBLE_SORT
+            COMB_SORTING -> QUICK_SORT
+            QUICK_SORT -> BUBBLE_SORT
         }
     }
 }
@@ -164,6 +163,7 @@ class MainViewModel : ViewModel() {
             Algorithm.BUBBLE_SORT -> BubbleSorting(basedArray)
             Algorithm.INSERTION_SORT -> InsertionSorting(basedArray)
             Algorithm.COMB_SORTING -> CombSorting(basedArray)
+            Algorithm.QUICK_SORT -> QuickSorting(basedArray)
         }
         currentJob = viewModelScope.launch {
             currentAlgorithm?.execute()?.collect {
@@ -173,7 +173,8 @@ class MainViewModel : ViewModel() {
                         it.oldList,
                         it.newList,
                         it.indexes,
-                        currentDuration
+                        currentDuration,
+                        it.level
                     )
                 )
                 waitForStepAnimationEnd()
@@ -206,7 +207,7 @@ class MainViewModel : ViewModel() {
     }
 
     private fun makeNextStep() {
-        viewModelScope.launch {
+        viewModelScope.launch(exceptionHandler) {
             waitingContinuation?.resume(Unit)
         }
     }
