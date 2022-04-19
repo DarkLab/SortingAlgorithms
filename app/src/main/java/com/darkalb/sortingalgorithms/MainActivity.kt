@@ -92,14 +92,13 @@ class MainActivity : AppCompatActivity() {
     private val paint = Paint().apply {
         color = _staticColor
     }
-    private val linePaint = Paint().apply {
-        color = Color.WHITE
-    }
+    private val linePaint = Paint()
     private var emptySpace: Int = 0
 
     private var itemXSpace = 0
     private var itemWidth = 0
     private var freeLeftXSpace = 0f
+    private val factor = 0.95f
 
     private lateinit var binding: ActivityMainBinding
     private val viewModel = MainViewModel()
@@ -180,7 +179,7 @@ class MainActivity : AppCompatActivity() {
     ) {
         animatedDatas.onEach { animatedData ->
             container.addView(animatedData.brick)
-            animatedData.brick.scaleY = numbers[animatedData.animatedPositions.first]
+            animatedData.brick.scaleY = numbers[animatedData.animatedPositions.first] * factor
             animatedData.animator.setFloatValues(
                 freeLeftXSpace + animatedData.animatedPositions.first * itemXSpace + emptySpace,
                 freeLeftXSpace + animatedData.animatedPositions.second * itemXSpace + emptySpace
@@ -261,14 +260,14 @@ class MainActivity : AppCompatActivity() {
             if (it in excludeIndex) return@repeat
             drawRect(
                 freeLeftXSpace + itemXSpace.toFloat() * it + emptySpace,
-                h * (1f - numbers[it]),
+                h * (1f - numbers[it] * factor),
                 freeLeftXSpace + itemXSpace.toFloat() * (it + 1) - emptySpace,
                 h.toFloat(),
                 paint
             )
         }
         level?.also { l ->
-            val lh = (1 - l) * h
+            val lh = (1 - l * factor) * h
             drawLine(0f, lh, w.toFloat(), lh, linePaint)
         }
     }
@@ -322,6 +321,7 @@ class MainActivity : AppCompatActivity() {
         _backgroundColor = Color.parseColor(state.palette[0])
         _staticColor = Color.parseColor(state.palette[1])
         _dynamicColor = Color.parseColor(state.palette[2])
+        linePaint.color = Color.parseColor(state.palette[3])
         binding.typeTV.text = state.algorithm.mnemonic
         binding.durationTv.text = state.duration.mnemonic
     }

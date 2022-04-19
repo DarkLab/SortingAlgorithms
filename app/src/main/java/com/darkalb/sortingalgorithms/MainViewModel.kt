@@ -60,11 +60,11 @@ enum class DURATION(val mnemonic: String, val value: Long) {
 }
 
 private val palettes = arrayOf(
-    arrayOf("#001E6C", "#E8630A", "#FCD900"),
-    arrayOf("#8E3200", "#D7A86E", "#FFEBC1"),
-    arrayOf("#40DFEF", "#FFFBE7", "#E78EA9"),
-    arrayOf("#006778", "#00AFC1", "#FFD124"),
-    arrayOf("#139487", "#FFF1CE", "#D29D2B")
+    arrayOf("#001E6C", "#E8630A", "#FCD900", "#035397"),
+    arrayOf("#8E3200", "#D7A86E", "#FFEBC1", "#A64B2A"),
+    arrayOf("#40DFEF", "#FFFBE7", "#E78EA9", "#B9F8D3"),
+    arrayOf("#006778", "#00AFC1", "#FFD124", "#0093AB"),
+    arrayOf("#139487", "#FFF1CE", "#D29D2B", "#86C6F4")
 )
 
 class MainViewModel : ViewModel() {
