@@ -8,6 +8,7 @@
     - пузырьком (bub)
     - вставкой (ins)
     - расческой (comb)
+    - быстрая сортировка (qk)
 3. Выбор размера массива.
     - 20
     - 30
@@ -21,22 +22,26 @@
 - скорость воспроизведения можно изменять во время сортировки
 - после сортировки клик по кнопкам 2 и 4 возвращает на экран отображение последнего массива в "первозданном" виде, что позволяет произвести сортировку того же массива новым типом сортировки и в новой цветовой палитре
 
-<image src="https://github.com/DarkLab/SortingAlgorithms/blob/master/AuxiliaryFiles/Screenshot_01.png"/>
+<image src="https://github.com/DarkLab/SortingAlgorithms/blob/master/AuxiliaryFiles/Screen_01.png"/>
             
-<image src="https://github.com/DarkLab/SortingAlgorithms/blob/master/AuxiliaryFiles/Screenshot_02.png"/>
-
----
-### Пример Вставкой
-
-https://user-images.githubusercontent.com/2250716/163725223-e0301f2d-9109-4122-8608-6015f45cccce.mp4
-
----
-### Пример Расческой
-
-https://user-images.githubusercontent.com/2250716/163725241-14f28040-7b98-4d4a-ac24-ce8ba0cc3836.mp4
+<image src="https://github.com/DarkLab/SortingAlgorithms/blob/master/AuxiliaryFiles/Screen_02.png"/>
 
 ---
 ### Пример Пузырьком
 
-https://user-images.githubusercontent.com/2250716/163725530-54d29825-8dbc-4d0f-83b2-6b2a2ec3a0ac.mp4
+https://user-images.githubusercontent.com/2250716/164066082-fcbb6aef-8f9d-44df-99a1-d86715589059.mp4
 
+---
+### Пример Вставкой
+
+https://user-images.githubusercontent.com/2250716/164066265-4976b32b-18c6-42ad-960d-64789f456eaf.mp4
+
+---
+### Пример Расческой
+
+https://user-images.githubusercontent.com/2250716/164066348-51992398-4b03-4c77-bba5-0cfa9c40d6c8.mp4
+
+---
+### Пример Быстрой сортировки
+
+https://user-images.githubusercontent.com/2250716/164066436-2cb2b13a-cde8-4138-99cb-c5c0cfe1bac6.mp4
