@@ -6,20 +6,21 @@ import kotlinx.coroutines.flow.FlowCollector
 class BubbleSorting(originalList: List<Float>) : SortingAlgorithm(originalList) {
 
     override suspend fun sort(list: MutableList<Float>, collector: FlowCollector<RenderData>) {
-        val count = list.count()
-        for (i in 0 until (count - 1)) {
-            for (j in (i + 1) until count) {
+        val limit = list.lastIndex
+        for (offset in 0 until limit) {
+            for (j in 0 until (limit - offset)) {
                 val oldList = list.toList()
-                val temp = list[i]
-                val renderData = if (temp > list[j]) {
-                    list[i] = list[j]
-                    list[j] = temp
+                val temp = list[j]
+                val next = j + 1
+                val renderData = if (temp > list[next]) {
+                    list[j] = list[next]
+                    list[next] = temp
                     RenderData(
                         oldList,
                         list.toList(),
                         listOf(
-                            i to j,
-                            j to i
+                            j to next,
+                            next to j
                         )
                     )
                 } else {
@@ -27,8 +28,8 @@ class BubbleSorting(originalList: List<Float>) : SortingAlgorithm(originalList) 
                         oldList,
                         list.toList(),
                         listOf(
-                            i to i,
-                            j to j
+                            j to j,
+                            next to next
                         )
                     )
                 }
