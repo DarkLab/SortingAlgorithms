@@ -2,58 +2,11 @@ package com.darkalb.sortingalgorithms
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.darkalb.sortingalgorithms.enums.*
 import com.darkalb.sortingalgorithms.variants.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-
-enum class Algorithm(val mnemonic: String) {
-    BUBBLE_SORT("bub"),
-    INSERTION_SORT("ins"),
-    COMB_SORTING("comb"),
-    QUICK_SORT("qk");
-
-    fun next(): Algorithm {
-        return when (this) {
-            BUBBLE_SORT -> INSERTION_SORT
-            INSERTION_SORT -> COMB_SORTING
-            COMB_SORTING -> QUICK_SORT
-            QUICK_SORT -> BUBBLE_SORT
-        }
-    }
-}
-
-enum class QUANTITY(val size: Int) {
-    SMALL(20),
-    MEDIUM(30),
-    BIG(40);
-
-    fun next(): QUANTITY {
-        return when (this) {
-            SMALL -> MEDIUM
-            MEDIUM -> BIG
-            BIG -> SMALL
-        }
-    }
-}
-
-enum class DURATION(val mnemonic: String, val value: Long) {
-    SLOW("1x", 960L),
-    MEDIUM("2x", 640L),
-    FAST("3x", 320L),
-    VERY_FAST("4x", 160L),
-    SUPER_FAST("5x", 80L);
-
-    fun next(): DURATION {
-        return when (this) {
-            SLOW -> MEDIUM
-            MEDIUM -> FAST
-            FAST -> VERY_FAST
-            VERY_FAST -> SUPER_FAST
-            SUPER_FAST -> SLOW
-        }
-    }
-}
 
 private val palettes = arrayOf(
     arrayOf("#001E6C", "#E8630A", "#FCD900", "#035397"),
@@ -203,6 +156,6 @@ class MainViewModel : ViewModel() {
     }
 
     private fun makeNextStep() {
-        currentAlgorithm?.stepPerformed()
+        currentAlgorithm?.makeNextStep()
     }
 }

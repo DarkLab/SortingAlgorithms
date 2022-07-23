@@ -26,7 +26,7 @@ abstract class SortingAlgorithm(private val originalList: List<Float>) {
         collector: FlowCollector<RenderData>
     )
 
-    fun stepPerformed() {
+    fun makeNextStep() {
         stepListener?.onStepPerformed()
     }
 
