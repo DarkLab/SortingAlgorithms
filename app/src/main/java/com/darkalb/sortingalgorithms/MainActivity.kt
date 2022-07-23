@@ -14,6 +14,7 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.core.animation.doOnEnd
 import androidx.core.animation.doOnStart
 import androidx.core.graphics.applyCanvas
@@ -101,7 +102,7 @@ class MainActivity : AppCompatActivity() {
     private val factor = 0.95f
 
     private lateinit var binding: ActivityMainBinding
-    private val viewModel = MainViewModel()
+    private val viewModel by viewModels<MainViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMainBinding.inflate(layoutInflater)

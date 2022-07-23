@@ -6,10 +6,6 @@ import com.darkalb.sortingalgorithms.variants.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlin.coroutines.Continuation
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 enum class Algorithm(val mnemonic: String) {
     BUBBLE_SORT("bub"),
@@ -91,7 +87,7 @@ class MainViewModel : ViewModel() {
     val uiState = _uiState.asStateFlow()
 
     private var currentJob: Job? = null
-    private var waitingContinuation: Continuation<Unit>? = null
+
     private var currentAlgorithm: SortingAlgorithm? = null
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -177,7 +173,7 @@ class MainViewModel : ViewModel() {
                         it.level
                     )
                 )
-                waitForStepAnimationEnd()
+                currentAlgorithm?.awaitStepFinish()
             }
             _uiState.emit(MainUiState.Congratulation("Поздравляю!!!"))
         }
@@ -207,14 +203,6 @@ class MainViewModel : ViewModel() {
     }
 
     private fun makeNextStep() {
-        viewModelScope.launch(exceptionHandler) {
-            waitingContinuation?.resume(Unit)
-        }
-    }
-
-    private suspend fun waitForStepAnimationEnd() {
-        suspendCoroutine<Unit> {
-            waitingContinuation = it
-        }
+        currentAlgorithm?.stepPerformed()
     }
 }
